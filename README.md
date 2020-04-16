@@ -12,7 +12,7 @@ Pull this repository and run following commands in the root directory:
 godep restore
 go build
 ```
-It should be error free and now you could see there is an executable file in the root directory.
+It should be error free and now you could see an executable file generated in the root directory.
 ## Usage
 ```shell script
 Usage: hitter [-hncmHbfs] [-a apiUrl]
