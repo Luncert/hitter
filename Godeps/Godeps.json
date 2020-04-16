@@ -1,0 +1,40 @@
+{
+	"ImportPath": "github.com/Luncert/api-hitter",
+	"GoVersion": "go1.11",
+	"GodepVersion": "v80",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gookit/color",
+			"Comment": "v1.1.7",
+			"Rev": "55e2fd773974775d0bda6daef1fe74bd47ccc260"
+		},
+		{
+			"ImportPath": "golang.org/x/net/http/httpguts",
+			"Rev": "eb5bcb51f2a31c7d5141d810b70815c05d9c9146"
+		},
+		{
+			"ImportPath": "golang.org/x/net/idna",
+			"Rev": "eb5bcb51f2a31c7d5141d810b70815c05d9c9146"
+		},
+		{
+			"ImportPath": "golang.org/x/text/secure/bidirule",
+			"Comment": "v0.3.0-77-gf4905fb",
+			"Rev": "f4905fbd45b6790792202848439271c74074bbfd"
+		},
+		{
+			"ImportPath": "golang.org/x/text/transform",
+			"Comment": "v0.3.0-77-gf4905fb",
+			"Rev": "f4905fbd45b6790792202848439271c74074bbfd"
+		},
+		{
+			"ImportPath": "golang.org/x/text/unicode/bidi",
+			"Comment": "v0.3.0-77-gf4905fb",
+			"Rev": "f4905fbd45b6790792202848439271c74074bbfd"
+		},
+		{
+			"ImportPath": "golang.org/x/text/unicode/norm",
+			"Comment": "v0.3.0-77-gf4905fb",
+			"Rev": "f4905fbd45b6790792202848439271c74074bbfd"
+		}
+	]
+}
