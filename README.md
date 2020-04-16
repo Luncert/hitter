@@ -25,7 +25,7 @@ Options:
   -b string
         request body
   -c int
-        maximum go-channel number to limit concurrency (default 1)
+        maximum go-routine number to limit concurrency (default 1)
   -f string
         read a file as request body, won't work if -b is provided
   -h    help
