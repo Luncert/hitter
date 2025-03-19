@@ -25,7 +25,7 @@ var (
 	logBuf = NewMutexBuffer()
 
 	usage = `Version: 0.0.1-SNAPSHOT
-Usage: hitter [-hncmHbfs] [-a apiUrl]
+Usage: hitter [-hncmHbfsi] [-a apiUrl]
 
 Options:
 `
@@ -65,6 +65,7 @@ type RequestParams struct {
 	method  string
 	headers Headers
 	body    []byte
+	enableRequestId bool
 }
 
 func main() {
@@ -99,7 +100,7 @@ func main() {
 
 	start := time.Now().UnixNano()
 	for i := 0; i < reqNum; i++ {
-		_ = ex.Execute(makeRequest, client, requestParams)
+		_ = ex.Execute(makeRequest, client, requestParams, i)
 	}
 	ex.Stop()
 	timeUsage := float64(time.Now().UnixNano()-start) / 1e9
@@ -118,6 +119,7 @@ func main() {
 func parseArguments() (bool, int, int, RequestParams) {
 	help := flag.Bool("h", false, "help")
 	notSaveLog := flag.Bool("s", false, "don't save log")
+	enableRequestId := flag.Bool("i", false, "add request id to payload using placeholder {{}}")
 
 	reqNum := flag.Int("n", 1, "total requests number")
 	concurrency := flag.Int("c", 1, "maximum go-channel number to limit concurrency")
@@ -172,6 +174,7 @@ func parseArguments() (bool, int, int, RequestParams) {
 			method:  *method,
 			headers: headers,
 			body:    body,
+			enableRequestId: *enableRequestId,
 		}
 }
 
@@ -199,11 +202,19 @@ func isNotToken(r rune) bool {
 func makeRequest(args ...interface{}) {
 	client := args[0].(*http.Client)
 	requestParams := args[1].(RequestParams)
+	reqId := args[2].(int)
 
 	var timeUsage float64
 
+	var bodyReader *bytes.Reader
+	if requestParams.enableRequestId {
+		var bodyString = strings.Replace(string(requestParams.body[:]), "{{}}", fmt.Sprintf("%d", reqId), 1)
+		bodyReader = bytes.NewReader([]byte(bodyString))
+	} else {
+		bodyReader = bytes.NewReader(requestParams.body)
+	}
+
 	var rep *http.Response
-	var bodyReader = bytes.NewReader(requestParams.body)
 	req, err := http.NewRequest(requestParams.method, requestParams.url, bodyReader)
 	if err == nil {
 		// add headers
