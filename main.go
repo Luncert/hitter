@@ -35,6 +35,7 @@ Options:
 var (
 	cr  = [4]rune{'-', '\\', '|', '/'}
 	crI = 0
+	timeUsages = make([]float64, 0)
 )
 
 type Headers map[string]string
@@ -211,14 +212,13 @@ func makeRequest(args ...interface{}) {
 		}
 
 		// do request
-		start := time.Now()
+		start := time.Now().UnixNano()
 		rep, err = client.Do(req)
-		timeUsage = time.Since(start).Seconds()
-
+		timeUsage = float64(time.Now().UnixNano() - start) / 1e6
 	}
 
 	// submit execution result
-	if err == nil && rep.StatusCode == 200 {
+	if err == nil && rep.StatusCode < 300 {
 		submit(timeUsage, true)
 	} else {
 		// log error info
@@ -235,6 +235,8 @@ func makeRequest(args ...interface{}) {
 func submit(timeUsage float64, success bool) {
 	lock.Lock()
 	defer lock.Unlock()
+
+	timeUsages = append(timeUsages, timeUsage)
 
 	// update progress
 	if !success {
@@ -258,6 +260,24 @@ func printStatistics(timeUsage float64) {
 	} else {
 		fmt.Printf("qps: %.6f\n", float64(totalTaskNum)/timeUsage)
 	}
+
+	var timeUsageSum float64
+	var timeUsageMax float64
+	var timeUsageMin float64 = timeUsages[0]
+	for i := 0; i < len(timeUsages); i++ {
+		timeUsageSum += timeUsages[i]
+		if timeUsageMin > timeUsages[i] {
+			timeUsageMin = timeUsages[i]
+		}
+		if timeUsageMax < timeUsages[i] {
+			timeUsageMax = timeUsages[i]
+		}
+	}
+
+	fmt.Printf("resp.avg: %.6f ms\n", timeUsageSum / float64(len(timeUsages)))
+	fmt.Printf("resp.max: %.6f ms\n", timeUsageMax)
+	fmt.Printf("resp.min: %.6f ms\n", timeUsageMin)
+
 	fmt.Printf("total: %d\n", totalTaskNum)
 	fmt.Printf("failed: %d\n", failed)
 }
